@@ -1,20 +1,19 @@
-/* 
-  IsepBricolage
-  Grupo: João Vaz 1240908 e Martim Alves 12******
-*/
+/* ===============================================================
+   SCRIPT 1: CRIAÇÃO DA ESTRUTURA (DDL)
+   Ficheiro: Isep_bricolage.sql
+   =============================================================== */
 
--- 1. CRIAÇÃO DA BASE DE DADOS (Só corre se ela não existir)
+-- 1. CRIAÇÃO DA BASE DE DADOS
 IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'IsepBricolage')
 BEGIN
     CREATE DATABASE IsepBricolage;
 END
 GO
 
--- 2. GARANTIR QUE USAMOS A BASE DE DADOS CERTA
 USE IsepBricolage;
 GO
 
--- 3. LIMPEZA (Apagar tabelas antigas se existirem para não dar erro ao recriar)
+-- 2. LIMPEZA (Ordem correta para respeitar Foreign Keys)
 DROP TABLE IF EXISTS Transporte_Conteudo;
 DROP TABLE IF EXISTS Transporte;
 DROP TABLE IF EXISTS Guia_Saida_Detalhe;
@@ -31,8 +30,7 @@ DROP TABLE IF EXISTS Zona_Fisica;
 DROP TABLE IF EXISTS Armazem;
 GO
 
--- 4. CRIAÇÃO DAS TABELAS (Modelo Corrigido)
-
+-- 3. CRIAÇÃO DAS TABELAS
 CREATE TABLE Armazem (
     cod_armazem INT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
@@ -164,3 +162,4 @@ CREATE TABLE Transporte_Conteudo (
     FOREIGN KEY (id_transporte) REFERENCES Transporte(id_transporte),
     FOREIGN KEY (id_guia) REFERENCES Guia_Saida(id_guia)
 );
+GO
