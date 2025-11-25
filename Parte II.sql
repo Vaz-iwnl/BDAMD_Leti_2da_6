@@ -119,11 +119,11 @@ HAVING
 ORDER BY
     Total_Pendentes DESC;
 
-/* 2.6. Vendedores Ricos em 2015 */
+/* 2.6. Vendedores que fizeram mais de 1000.0 em 2015 */
 SELECT
     F.num_funcionario,
     F.nome,
-    A.loc_geo_wgs84 AS zona_geografica 
+    A.morada AS zona_geografica 
 FROM
     Funcionario F
 JOIN 
