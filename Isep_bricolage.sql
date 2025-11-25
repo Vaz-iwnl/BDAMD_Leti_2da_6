@@ -1,5 +1,6 @@
-/* SCRIPT CORRIGIDO E COMPLETO 
-   Para o trabalho: IsepBricolage
+/* 
+  IsepBricolage
+  Grupo: João Vaz 1240908 e Martim Alves 12******
 */
 
 -- 1. CRIAÇÃO DA BASE DE DADOS (Só corre se ela não existir)
@@ -14,7 +15,6 @@ USE IsepBricolage;
 GO
 
 -- 3. LIMPEZA (Apagar tabelas antigas se existirem para não dar erro ao recriar)
--- A ordem é importante por causa das setas (chaves estrangeiras)
 DROP TABLE IF EXISTS Transporte_Conteudo;
 DROP TABLE IF EXISTS Transporte;
 DROP TABLE IF EXISTS Guia_Saida_Detalhe;
