@@ -205,12 +205,10 @@ INSERT INTO Transporte (id_transporte, nif_transportadora, cod_cliente_destino, 
 SELECT id_guia + 9000, 900100100, NE.cod_cliente, DATEADD(HOUR, 2, data_guia), 2.5
 FROM Guia_Saida GS JOIN Nota_Encomenda NE ON GS.num_encomenda_origem = NE.num_encomenda;
 
-<<<<<<< Updated upstream
+--Updated upstream
 INSERT INTO Transporte_Conteudo (id_transporte, id_guia) VALUES
 (901, 801);
 
-
-=======
 INSERT INTO Transporte_Conteudo (id_transporte, id_guia)
 SELECT id_guia + 9000, id_guia FROM Guia_Saida;
->>>>>>> Stashed changes
+--Stashed changes
