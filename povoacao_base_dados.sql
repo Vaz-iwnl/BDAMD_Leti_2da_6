@@ -286,3 +286,5 @@ INSERT INTO Transporte (id_transporte, nif_transportadora, cod_cliente_destino, 
 
 INSERT INTO Transporte_Conteudo (id_transporte, id_guia) VALUES
 (901, 801);
+
+

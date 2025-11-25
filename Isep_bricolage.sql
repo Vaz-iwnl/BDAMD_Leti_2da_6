@@ -84,19 +84,20 @@ CREATE TABLE Cliente (
     tipo_cliente VARCHAR(20)
 );
 
-CREATE TABLE Funcionario (
-    num_funcionario INT PRIMARY KEY,
+CREATE TABLE Funcionario(
+ num_funcionario INT PRIMARY KEY,
     cartao_cidadao INT UNIQUE NOT NULL,
     nome VARCHAR(100) NOT NULL,
     morada VARCHAR(255),
     nif INT UNIQUE NOT NULL,
     salario_mensal DECIMAL(10,2),
     categoria VARCHAR(50),
+    zona_geografica VARCHAR(50), 
     cod_supervisor INT,
     cod_armazem INT NOT NULL,
     FOREIGN KEY (cod_supervisor) REFERENCES Funcionario(num_funcionario),
     FOREIGN KEY (cod_armazem) REFERENCES Armazem(cod_armazem)
-);
+    );
 
 CREATE TABLE Stock_Armazem (
     cod_armazem INT,
@@ -113,9 +114,11 @@ CREATE TABLE Nota_Encomenda (
     data_encomenda DATE NOT NULL,
     cod_cliente INT NOT NULL,
     num_vendedor INT NOT NULL,
+    cod_armazem INT NOT NULL,--
     estado VARCHAR(20) CHECK (estado IN ('Pendente', 'Processada')),
     FOREIGN KEY (cod_cliente) REFERENCES Cliente(cod_cliente),
-    FOREIGN KEY (num_vendedor) REFERENCES Funcionario(num_funcionario)
+    FOREIGN KEY (num_vendedor) REFERENCES Funcionario(num_funcionario),
+    FOREIGN KEY (cod_armazem) REFERENCES Armazem(cod_armazem)--
 );
 
 CREATE TABLE Nota_Encomenda_Detalhe (
