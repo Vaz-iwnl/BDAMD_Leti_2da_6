@@ -50,3 +50,25 @@ WHERE
         FROM 
             Artigo
     );
+
+/*
+3.3 Listar o nome do artigo, referencia e a quantidade atual em stock para todos os artigos
+que estão em stock crítico (quantidade em stock <= stock mínimo) no 'Armazém Braga Minho'.
+*/
+SELECT
+    A.nome AS Nome_Artigo,
+    SA.referencia_artigo AS Referencia_Artigo,
+    SA.quantidade_total AS Stock_Atual,
+    SA.stock_minimo AS Stock_Minimo
+FROM
+    Artigo A
+JOIN
+    Stock_Armazem SA ON A.referencia = SA.referencia_artigo
+JOIN
+    Armazem Ar ON SA.cod_armazem = Ar.cod_armazem
+WHERE
+    Ar.nome = 'Armazém Braga Minho' 
+    AND SA.quantidade_total <= SA.stock_minimo 
+ORDER BY
+    SA.quantidade_total ASC;
+GO
