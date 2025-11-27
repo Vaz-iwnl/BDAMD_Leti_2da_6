@@ -52,23 +52,27 @@ WHERE
     );
 
 /*
-3.3 Listar o nome do artigo, referencia e a quantidade atual em stock para todos os artigos
-que estão em stock crítico (quantidade em stock <= stock mínimo) no 'Armazém Braga Minho'.
+3.3 Listar o nome, salário e contagem de encomendas para vendedores cujo salário é
+inferior ao salário médio de todos os funcionários na categoria 'Vendedor'.
 */
 SELECT
-    A.nome AS Nome_Artigo,
-    SA.referencia_artigo AS Referencia_Artigo,
-    SA.quantidade_total AS Stock_Atual,
-    SA.stock_minimo AS Stock_Minimo
+    F.nome AS Nome_Vendedor,
+    F.salario_mensal AS Salario_Mensal,
+    COUNT(NE.num_encomenda) AS Num_Encomendas_Processadas
 FROM
-    Artigo A
+    Funcionario F
 JOIN
-    Stock_Armazem SA ON A.referencia = SA.referencia_artigo
-JOIN
-    Armazem Ar ON SA.cod_armazem = Ar.cod_armazem
+    Nota_Encomenda NE ON F.num_funcionario = NE.num_vendedor
 WHERE
-    Ar.nome = 'Armazém Braga Minho' 
-    AND SA.quantidade_total <= SA.stock_minimo 
-ORDER BY
-    SA.quantidade_total ASC;
+    F.categoria = 'Vendedor'
+    AND F.salario_mensal < ( 
+        SELECT
+            AVG(salario_mensal)
+        FROM
+            Funcionario 
+        WHERE
+            categoria = 'Vendedor'
+    )
+GROUP BY
+    F.nome, F.salario_mensal
 GO
