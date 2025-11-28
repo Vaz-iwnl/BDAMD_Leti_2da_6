@@ -1,8 +1,3 @@
-/* ===============================================================
-   SCRIPT 1: CRIAÇÃO DA ESTRUTURA (DDL)
-   Ficheiro: Isep_bricolage.sql
-   =============================================================== */
-
 -- 1. CRIAÇÃO DA BASE DE DADOS
 IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'IsepBricolage')
 BEGIN

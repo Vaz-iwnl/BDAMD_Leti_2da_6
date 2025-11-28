@@ -1,0 +1,199 @@
+@startuml
+
+' Configurações visuais para clareza
+hide circle
+skinparam nodesep 90
+skinparam ranksep 70
+skinparam shadowing false
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' ===================================
+' ENTIDADES (TABELAS)
+' ===================================
+
+entity "Armazem" as Armazem {
+  *cod_armazem : INT <<PK>>
+  --
+  nome : VARCHAR(100)
+  morada : VARCHAR(255)
+  loc_geo_wgs84 : VARCHAR(100)
+}
+
+entity "Zona_Fisica" as Zona_Fisica {
+  *id_zona : INT <<PK>>
+  --
+  *cod_armazem : INT <<FK>>
+  nome_zona : VARCHAR(50)
+  capacidade_volume : DECIMAL(10,2)
+}
+
+entity "Funcionario" as Funcionario {
+  *num_funcionario : INT <<PK>>
+  --
+  *cod_armazem : INT <<FK>>
+  cod_supervisor : INT <<FK>>
+  cartao_cidadao : INT <<UNIQUE>>
+  nome : VARCHAR(100)
+  morada : VARCHAR(255)
+  nif : INT <<UNIQUE>>
+  salario_mensal : DECIMAL(10,2)
+  categoria : VARCHAR(50)
+}
+
+entity "Artigo" as Artigo {
+  *referencia : INT <<PK>>
+  --
+  nome : VARCHAR(100)
+  descricao : VARCHAR(255)
+  preco_compra : DECIMAL(10,2)
+  preco_venda : DECIMAL(10,2)
+  unidade : VARCHAR(20)
+}
+
+entity "Stock_Armazem" as Stock_Armazem {
+  *cod_armazem : INT <<PK, FK>>
+  *referencia_artigo : INT <<PK, FK>>
+  --
+  stock_minimo : INT
+  quantidade_total : INT
+}
+
+entity "Historico_Preco" as Historico_Preco {
+  *id_historico : INT <<PK>>
+  --
+  *referencia_artigo : INT <<FK>>
+  preco_antigo : DECIMAL(10,2)
+  data_inicio : DATE
+  data_fim : DATE
+}
+
+entity "Cliente" as Cliente {
+  *cod_cliente : INT <<PK>>
+  --
+  nome : VARCHAR(100)
+  morada : VARCHAR(255)
+  codigo_postal : VARCHAR(20)
+  telemovel : VARCHAR(20)
+  nif : INT <<UNIQUE>>
+  zona_geografica : VARCHAR(50)
+  tipo_cliente : VARCHAR(20)
+}
+
+entity "Nota_Encomenda" as Nota_Encomenda {
+  *num_encomenda : INT <<PK>>
+  --
+  *cod_cliente : INT <<FK>>
+  *num_vendedor : INT <<FK>>
+  data_encomenda : DATE
+  estado : VARCHAR(20)
+}
+
+entity "Nota_Encomenda_Detalhe" as Nota_Encomenda_Detalhe {
+  *num_encomenda : INT <<PK, FK>>
+  *referencia_artigo : INT <<PK, FK>>
+  --
+  quantidade : INT
+}
+
+entity "Guia_Saida" as Guia_Saida {
+  *id_guia : INT <<PK>>
+  --
+  *num_encomenda_origem : INT <<FK, UNIQUE>>
+  *func_responsavel : INT <<FK>>
+  data_guia : DATETIME
+}
+
+entity "Guia_Saida_Detalhe" as Guia_Saida_Detalhe {
+  *id_guia : INT <<PK, FK>>
+  *referencia_artigo : INT <<PK, FK>>
+  *id_zona : INT <<PK, FK>>
+  --
+  quantidade_retirada : INT
+}
+
+entity "Transportadora" as Transportadora {
+  *nif : INT <<PK>>
+  --
+  nome : VARCHAR(100) <<UNIQUE>>
+  contacto_telefonico : VARCHAR(20)
+  custo_hora : DECIMAL(10,2)
+}
+
+entity "Transporte" as Transporte {
+  *id_transporte : INT <<PK>>
+  --
+  *nif_transportadora : INT <<FK>>
+  *cod_cliente_destino : INT <<FK>>
+  data_transporte : DATETIME
+  num_horas_utilizacao : DECIMAL(4,2)
+}
+
+entity "Transporte_Conteudo" as Transporte_Conteudo {
+  *id_transporte : INT <<PK, FK>>
+  *id_guia : INT <<PK, FK, UNIQUE>>
+}
+
+' ===================================
+' RELACIONAMENTOS (com base nas Regras de Negócio do PDF)
+' ===================================
+
+' Armazém e Zonas
+' PDF: "Cada armazém está dividido em várias zonas físicas"
+Armazem "1" -- "1..*" Zona_Fisica : contém >
+
+' Armazém e Funcionários
+' PDF: "funcionários... estão afetos a um e só um armazém"
+Armazem "1" -- "1..*" Funcionario : emprega >
+
+' Funcionário Supervisão
+' PDF: "Um supervisor é um funcionário" (Auto-relacionamento)
+Funcionario "0..1" -- "0..*" Funcionario : supervisiona >
+
+' Stock
+' PDF: "quantidade de stock varia de armazém para armazém"
+Armazem "1" -- "0..*" Stock_Armazem : armazena >
+Artigo "1" -- "0..*" Stock_Armazem : existe em >
+
+' Histórico
+' PDF: "interessa manter o histórico dos preços"
+Artigo "1" -- "0..*" Historico_Preco : tem histórico >
+
+' Encomendas
+' PDF: "clientes... registam... numa nota de encomenda"
+Cliente "1" -- "0..*" Nota_Encomenda : realiza >
+' PDF: "visitados por vendedores... os quais registam"
+Funcionario "1" -- "0..*" Nota_Encomenda : vende >
+
+' Detalhe Encomenda
+Nota_Encomenda "1" -- "1..*" Nota_Encomenda_Detalhe : compõe-se de >
+Artigo "1" -- "0..*" Nota_Encomenda_Detalhe : incluído em >
+
+' Guia de Saída
+' PDF: "nota de encomenda... dará origem a uma guia de saída"
+' Nota: 0..1 porque a encomenda pode estar "Pendente" (sem guia)
+Nota_Encomenda "1" -- "0..1" Guia_Saida : gera >
+' PDF: "tem um funcionário responsável"
+Funcionario "1" -- "0..*" Guia_Saida : emite >
+
+' Detalhe Guia (Logística de Saída)
+' PDF: "interessa saber em que zona(s) foi retirado"
+Guia_Saida "1" -- "1..*" Guia_Saida_Detalhe : especifica >
+Artigo "1" -- "0..*" Guia_Saida_Detalhe : < retirado de
+Zona_Fisica "1" -- "0..*" Guia_Saida_Detalhe : < origem física
+
+' Transportes
+' PDF: "artigos são enviados... através de transportadoras"
+Transportadora "1" -- "0..*" Transporte : executa >
+Cliente "1" -- "0..*" Transporte : < recebe entrega
+
+' Conteúdo do Transporte
+' PDF: "necessário saber... os artigos (via Guia) a transportar"
+' Nota: id_guia é UNIQUE em Transporte_Conteudo, logo 1 Guia vai em no máx 1 Transporte.
+Transporte "1" -- "1..*" Transporte_Conteudo : carrega >
+Guia_Saida "1" -- "0..1" Transporte_Conteudo : viaja em >
+
+@enduml

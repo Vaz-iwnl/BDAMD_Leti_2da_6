@@ -1,5 +1,5 @@
-use IsepBricolage
-go
+USE IsepBricolage
+GO
 
 /*
 3.1 Liste o nome do cliente, o nome da transportadora e o custo total estimado (horas × custo/hora) 
@@ -53,7 +53,7 @@ WHERE
 
 /*
 3.3 Listar o nome, salário e contagem de encomendas para vendedores cujo salário é
-inferior ao salário médio de todos os funcionários na categoria 'Vendedor'.
+inferior ao salário médio dos funcionários do seu armazém.
 */
 SELECT
     F.nome AS Nome_Vendedor,

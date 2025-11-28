@@ -1,8 +1,3 @@
-/* ===============================================================
-   SCRIPT FINAL DE POVOAMENTO (DML) - IsepBricolage
-   VERSÃO CORRIGIDA: Erros de IDs de Armazém resolvidos.
-   =============================================================== */
-
 USE IsepBricolage;
 GO
 
@@ -135,7 +130,7 @@ INSERT INTO Artigo (referencia, nome, descricao, preco_compra, preco_venda, unid
 -- 4. STOCK
 -- =================================================================
 INSERT INTO Stock_Armazem (cod_armazem, referencia_artigo, stock_minimo, quantidade_total) VALUES
-(1, 1, 10, 10),
+(1, 1, 10, 100),
 (2, 2, 5, 2),
 (1, 3, 10, 20),
 (2, 4, 10, 500),
