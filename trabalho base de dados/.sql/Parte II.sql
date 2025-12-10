@@ -1,21 +1,23 @@
+
+
 USE IsepBricolage;
 GO
 
 /* 2.1. Artigo mais encomendado e respetivas zonas */
-WITH SaidasPorZona AS (
+WITH SaidasPorZona AS ( /*tabela temporária*/
     SELECT 
         GS.id_zona,
         GS.referencia_artigo,
-        SUM(GS.quantidade_retirada) as Total_Retirado
+        SUM(GS.quantidade_retirada) as Total_Retirado /*soma a quantidade de artigos que foi retirada de que zona*/
     FROM Guia_Saida_Detalhe GS
-    GROUP BY GS.id_zona, GS.referencia_artigo
+    GROUP BY GS.id_zona, GS.referencia_artigo /* agrupa para premitir a soma*/
 ),
 RankingZonas AS (
     SELECT 
         id_zona,
         referencia_artigo,
         Total_Retirado,
-        RANK() OVER (PARTITION BY id_zona ORDER BY Total_Retirado DESC) as Posicao
+        RANK() OVER (PARTITION BY id_zona ORDER BY Total_Retirado DESC) as Posicao /*ordena pela quantidade do maior para menor e faz um rank primeiro segundo etc*/
     FROM SaidasPorZona
 )
 SELECT 
@@ -24,29 +26,34 @@ SELECT
     Art.nome AS Produto_Mais_Retirado_Da_Zona,
     RZ.Total_Retirado AS Quantidade
 FROM RankingZonas RZ
-JOIN Zona_Fisica Z ON RZ.id_zona = Z.id_zona
+JOIN Zona_Fisica Z ON RZ.id_zona = Z.id_zona /*liga as tabelas para ter o nome*/
 JOIN Armazem A ON Z.cod_armazem = A.cod_armazem
 JOIN Artigo Art ON RZ.referencia_artigo = Art.referencia
-WHERE RZ.Posicao = 1
+WHERE RZ.Posicao = 1 /*vai buscar o primeiro de cada armazem*/
 ORDER BY A.nome, Z.nome_zona;
 
 /* 2.2. Armazéns com Stock Completo */
 SELECT nome AS Armazem_Completo
-FROM Armazem A
-WHERE NOT EXISTS (
+FROM Armazem A  
+WHERE NOT EXISTS ( -- O teste: "Não existe nada que falte"
+    
+    -- BLOCO 1: O que o Armazém Principal tem
     SELECT referencia_artigo
     FROM Stock_Armazem
     WHERE quantidade_total > 0
       AND cod_armazem = (
-          SELECT TOP 1 cod_armazem
+          SELECT TOP 1 cod_armazem       -- Pega apenas 1
           FROM Funcionario
-          GROUP BY cod_armazem
-          ORDER BY COUNT(num_funcionario) DESC
+          GROUP BY cod_armazem           -- Agrupa funcionários por armazém
+          ORDER BY COUNT(num_funcionario) DESC -- Ordena do maior para o menor
       )
-    EXCEPT
+    
+    EXCEPT -- O OPERADOR DE DIFERENÇA: "Tudo do Bloco 1 MENOS o do Bloco 2"
+    
+    -- BLOCO 2: O que o Armazém atual (A) tem
     SELECT referencia_artigo
     FROM Stock_Armazem
-    WHERE cod_armazem = A.cod_armazem
+    WHERE cod_armazem = A.cod_armazem -- Relaciona com o armazém da linha principal
       AND quantidade_total > 0
 );
 
@@ -58,13 +65,16 @@ SELECT
         THEN 'ZONA FISICA SEM STOCK'
         ELSE CAST(SUM(S.quantidade_total) AS VARCHAR)
     END AS Quantidade_Stock
+
 FROM Zona_Fisica Z
 JOIN Armazem A ON Z.cod_armazem = A.cod_armazem
-LEFT JOIN Stock_Armazem S ON A.cod_armazem = S.cod_armazem
+LEFT JOIN Stock_Armazem S ON A.cod_armazem = S.cod_armazem /* mantem a zona msm vazia*/
 WHERE A.nome = 'Armazém Porto Norte'
 GROUP BY Z.nome_zona
-HAVING SUM(S.quantidade_total) >= ALL (
-    SELECT ISNULL(SUM(S2.quantidade_total), 0)
+
+HAVING SUM(S.quantidade_total) >= ALL(   /* soma e depois compara com as outras todas*/
+    SELECT ISNULL(SUM(S2.quantidade_total), 0) /*calcula cada zona individualmente*/
+    
     FROM Zona_Fisica Z2
     LEFT JOIN Stock_Armazem S2 ON Z2.cod_armazem = S2.cod_armazem
     JOIN Armazem A2 ON Z2.cod_armazem = A2.cod_armazem
@@ -72,14 +82,14 @@ HAVING SUM(S.quantidade_total) >= ALL (
     GROUP BY Z2.nome_zona
 );
 
-/* 2.4. Zonas Cheias (Volume Ocupado) */
+/* 2.4. Zonas Cheias */
 SELECT 
     A.cod_armazem, 
     Z.nome_zona
 FROM Zona_Fisica Z
-JOIN Armazem A ON Z.cod_armazem = A.cod_armazem
-JOIN Stock_Armazem S ON A.cod_armazem = S.cod_armazem
-GROUP BY A.cod_armazem, Z.nome_zona, Z.capacidade_volume
+JOIN Armazem A ON Z.cod_armazem = A.cod_armazem /* liga o armazem para saber em que armazem estou*/
+JOIN Stock_Armazem S ON A.cod_armazem = S.cod_armazem /* liga o armazem a quantidade de stock que tem o armazem*/
+GROUP BY A.cod_armazem, Z.nome_zona, Z.capacidade_volume /*agrupa tudo para puder fazer a soma*/
 HAVING SUM(S.quantidade_total) >= Z.capacidade_volume 
 ORDER BY A.cod_armazem ASC, Z.nome_zona DESC;
 
