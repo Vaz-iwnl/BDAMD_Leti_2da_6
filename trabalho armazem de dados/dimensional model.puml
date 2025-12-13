@@ -1,0 +1,65 @@
+@startuml
+
+!theme plain
+hide circle
+
+
+' --- DIMENSÕES (Lado do 1) ---
+
+entity "DimTempo" as date {
+  *DateKey : int <<PK>>
+  --
+  FullDate : date
+  Year : int
+  Month : int
+  Quarter : int
+}
+
+entity "DimProduto" as product {
+  *ProductKey : int <<PK>>
+  --
+  ProductCode : varchar
+  ProductName : varchar
+  FamilyName : varchar
+}
+
+entity "DimCliente" as customer {
+  *CustomerKey : int <<PK>>
+  --
+  CustomerCode : varchar
+  CustomerName : varchar <<SCD1>>
+  Address : varchar <<SCD1>>
+  CustomerType : varchar
+}
+
+entity "DimFuncionario" as employee {
+  *EmployeeKey : int <<PK>>
+  --
+  EmployeeCode : varchar
+  EmployeeName : varchar
+  DepartmentName : varchar
+}
+
+' --- TABELA DE FACTOS (Lado do *) ---
+
+entity "FactVendas" as sales {
+  *SalesKey : int <<PK>>
+  --
+  *DateKey : int <<FK>>
+  *ProductKey : int <<FK>>
+  *CustomerKey : int <<FK>>
+  *EmployeeKey : int <<FK>>
+  --
+  Quantity : int
+  TotalAmount : money
+}
+
+' --- RELAÇÕES (1 para *) ---
+
+' A sintaxe abaixo coloca o "1" na esquerda e o "*" na direita
+date "1" -- "*" sales : ocorre em
+product "1" -- "*" sales : item vendido
+customer "1" -- "*" sales : compra realizada por
+employee "1" -- "*" sales : venda efetuada por
+
+@enduml
