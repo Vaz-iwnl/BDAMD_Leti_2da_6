@@ -1,15 +1,15 @@
 IF NOT EXISTS (SELECT name FROM sys.tables WHERE name = 'DimCustomers')
 BEGIN
 CREATE TABLE [dbo].[DimCustomers](
-	[CustomerKey] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerKey] [numeric] IDENTITY(1,1) NOT NULL,
 	[CustomerNumber] [numeric](10, 0) NOT NULL,
 	[TaxpayerNumber] [varchar](20) NOT NULL,
-	[Fax] [varchar](60) NOT NULL,
+	[Fax] [varchar](60) NULL,
 	[CustomerName] [varchar](100) NOT NULL,
 	[CustomerType] [int] NOT NULL,
 	[Address] [varchar](200) NOT NULL,
-	[City] [varchar](50) NULL,
-	[Phone] [varchar](60) NOT NULL,
+	[City] [varchar](50) NOT NULL,
+	[Phone] [varchar](60) NULL,
 	[ZipCode] [varchar](20) NOT NULL,
 	[Email] [varchar](45) NOT NULL,
 	[Location] [varchar](43) NOT NULL,
